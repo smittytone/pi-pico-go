@@ -19,3 +19,11 @@
 
 # Go workspace file
 go.work
+
+# Build directories
+build/
+*build/
+bin/
+
+# Xcode stuff
+xcuserdata/
