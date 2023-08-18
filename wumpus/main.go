@@ -11,12 +11,13 @@
 package main
 
 import (
-	"crypto/rand"
+	//"crypto/rand"
 	"machine"
 	prand "math/rand"
 	"time"
 	"wumpus/ht16k33"
 	"wumpus/graphics"
+	//"fmt"
 )
 
 /*
@@ -29,8 +30,8 @@ var stink_layer [8][8]bool
 var sound_layer [8][8]bool
 var draught_layer [8][8]bool
 
-var player_x uint8
-var player_y uint8
+var player_x uint
+var player_y uint
 var lastMoveDirection uint8
 
 var isInPlay bool
@@ -44,9 +45,10 @@ const textLose string = "    YOU DIED!    "
 var matrix ht16k33.HT16K33
 
 // Debounce controls
-var debounceButtonCount int
+var debounceButtonCount time.Time
 var lastPlayerPixelFlash time.Time
-var isJoystickCentred bool
+var isJoystickCentred bool = true
+var debounceButtonFlag bool = false
 
 const ON bool = true
 const OFF bool = false
@@ -58,16 +60,16 @@ const PIN_GREEN machine.Pin = machine.GP20
 const PIN_RED machine.Pin = machine.GP21
 const PIN_SPEAKER machine.Pin = machine.GP16
 
-var PIN_Y machine.ADC = machine.ADC{Pin: machine.ADC1}
-var PIN_X machine.ADC = machine.ADC{Pin: machine.ADC0}
+var PIN_Y machine.ADC = machine.ADC{Pin: machine.GP27}
+var PIN_X machine.ADC = machine.ADC{Pin: machine.GP26}
 
 const PIN_BUTTON machine.Pin = machine.GP19
 
 const DEADZONE uint16 = 400
-const UPPER_LIMIT uint16 = 2448
-const LOWER_LIMIT uint16 = 1648
+const UPPER_LIMIT uint16 = 50000
+const LOWER_LIMIT uint16 = 10000
 
-const DEBOUNCE_TIME_NS int = 10000000
+const DEBOUNCE_TIME_MS int64 = 10
 
 func main() {
 
@@ -127,9 +129,16 @@ func setup() bool {
 	PIN_BUTTON.Configure(machine.PinConfig{Mode: machine.PinInputPulldown})
 
 	// Set up the X- and Y-axis joystick input
-	PIN_X.Configure(machine.ADCConfig{})
-	PIN_Y.Configure(machine.ADCConfig{})
 	machine.InitADC()
+	err = PIN_X.Configure(machine.ADCConfig{})
+	if err != nil {
+		return false
+	}
+	err = PIN_Y.Configure(machine.ADCConfig{})
+	if err != nil {
+		return false
+	}
+	
 	return true
 }
 
@@ -164,8 +173,8 @@ func createWorld() {
 	//      can't overwrite it by chance, and we
 	//      make sure it's not in the bottom left
 	//      corner
-	var wumpus_x uint8 = 7
-	var wumpus_y uint8 = 7
+	var wumpus_x uint = 7
+	var wumpus_y uint = 7
 	
 	for wumpus_x < 1 && wumpus_y < 1 {
 		wumpus_x = irandom(0, 8)
@@ -227,10 +236,10 @@ func createWorld() {
 
 func rollHazards(hazardType uint8) {
 
-	var hazard_x uint8 = 0
-	var hazard_y uint8 = 0
+	var hazard_x uint = 0
+	var hazard_y uint = 0
 	var count = irandom(1, 4)
-	var i uint8
+	var i uint
 	for i = 0; i < count; i++ {
 		hazard_x = irandom(0, 8)
 		hazard_y = irandom(0, 8)
@@ -247,15 +256,16 @@ func gameLoop() {
 	// which direction it's in (up, down, left or right).
 	// If it's in the deadzone, check if the player is trying
 	// to fire an arrow.
-
+	
 	isInPlay = true
-	debounceButtonCount = 0
+	debounceButtonFlag = false
 	for isInPlay {
 		// Read joystick analog output
 		x := PIN_X.Get()
 		y := PIN_Y.Get()
 		isDead := false
-
+		//fmt.Printf("X: %d, Y: %d\r\n", x ,y)
+	
 		if checkJoystick(x, y) {
 			// Joystick is pointing in a direction, so
 			// get the direction the player has chosen
@@ -297,21 +307,21 @@ func gameLoop() {
 				checkSenses()
 			}
 		} else {
-			// Joystick is in deadzone
+			// Joystick is in deadzone so can fire
 			if PIN_BUTTON.Get() {
-				now := time.Now().Nanosecond()
-				if debounceButtonCount == 0 {
+				if !debounceButtonFlag {
 					// Set debounce timer
-					debounceButtonCount = now
-				} else if now-debounceButtonCount > DEBOUNCE_TIME_NS {
+					debounceButtonCount = time.Now()
+					debounceButtonFlag = true
+				} else if time.Since(debounceButtonCount).Milliseconds() > DEBOUNCE_TIME_MS {
 					// Clear debounce timer
-					debounceButtonCount = 0
+					debounceButtonFlag = false
 
 					// Shoot arrow
 					fireArrowAnimation()
 
 					// Did the arrow hit or miss?
-					if !PIN_BUTTON.Get() {
+					if lastMoveDirection == 0 {
 						if player_y < 7 {
 							if hazards[player_x][player_y+1] == 'w' {
 								deadWumpusAnimation()
@@ -352,12 +362,14 @@ func gameLoop() {
 			}
 		}
 
+		matrix.Plot(7,7,isJoystickCentred)
+
 		if !isDead {
 			// Draw the world then check for smells and hazards
 			drawWorld()
 
 			// Pause between cycles
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(50 * time.Millisecond)
 		}
 	}
 }
@@ -366,15 +378,17 @@ func gameLoop() {
  *  Movement control functions
  */
 func checkJoystick(x uint16, y uint16) bool {
+	
 	// Check to see if the joystick is currently
 	// outside of the central deadzone, and that it
 	// has returned to the centre before re-reading
 	if x > UPPER_LIMIT || x < LOWER_LIMIT || y > UPPER_LIMIT || y < LOWER_LIMIT {
 		if isJoystickCentred {
-			// We're good to use the reading, but not
+			// We're good to use the reading
 			isJoystickCentred = false
 			return true
 		} else {
+			// Ignore already moved joystick
 			return false
 		}
 	}
@@ -387,19 +401,50 @@ func checkJoystick(x uint16, y uint16) bool {
 func getDirection(x uint16, y uint16) uint {
 
 	// Get player direction from the analog input
-	if x < y {
-		if x > (4096 - y) {
-			return 0 // up
-		} else {
-			return 3 // right
+	// Centre = 32767, 32767; range 2048-65000
+
+	ydead := y > LOWER_LIMIT && y < UPPER_LIMIT
+	xdead := x > LOWER_LIMIT && x < UPPER_LIMIT
+
+	if ydead && !xdead {
+		if x < LOWER_LIMIT {
+			return 3
 		}
-	} else {
-		if x > (4096 - y) {
-			return 1 // left
-		} else {
-			return 2 // down
+
+		if x > UPPER_LIMIT {
+			return 1
 		}
 	}
+
+	if xdead && !ydead {
+		if y < LOWER_LIMIT {
+			return 2
+		}
+
+		if y > UPPER_LIMIT {
+			return 0
+		}
+	}
+
+	if !xdead && !ydead {
+		if x < LOWER_LIMIT {
+			return 3
+		}
+
+		if x > UPPER_LIMIT {
+			return 1
+		}
+
+		if y < LOWER_LIMIT {
+			return 2
+		}
+
+		if y > UPPER_LIMIT {
+			return 0
+		}
+	}
+
+	return 99
 }
 
 func clearPins() {
@@ -416,10 +461,10 @@ func drawWorld() {
 
 	// Draw the world on the 8x8 LED matrix
 	// and blink the player's location
-	matrix.Clear()
+	//matrix.Clear()
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
-			matrix.Plot(uint8(i), uint8(j), visited[i][j])
+			matrix.Plot(uint(i), uint(j), visited[i][j])
 		}
 	}
 
@@ -459,8 +504,8 @@ func checkHazards() bool {
 		grabbedByBat()
 
 		// ...then drop the player at random
-		var x uint8
-		var y uint8
+		var x uint
+		var y uint
 
 		for true {
 			x = irandom(0, 8)
@@ -518,6 +563,29 @@ func fireArrowAnimation() {
 
 	// Attempt to kill the Wumpus
 	// Show arrow firing animation
+	time.Sleep(time.Millisecond * 500)
+    matrix.DrawSprite(graphics.BOW_1[:])
+    tone(100, 100, 100)
+    matrix.DrawSprite(graphics.BOW_2[:])
+    tone(200, 100, 100)
+    matrix.DrawSprite(graphics.BOW_3[:])
+    tone(300, 100, 1000)
+    matrix.DrawSprite(graphics.BOW_2[:])
+
+    for i := 0 ; i < 50 ; i++ {
+        tone(irandom(200, 1500), 1, 1)
+    }
+
+    matrix.DrawSprite(graphics.BOW_1[:])
+
+    for i := 0 ; i < 25 ; i++ {
+        tone(irandom(200, 1500), 1, 1)
+    }
+
+    matrix.DrawSprite(graphics.BOW_4[:])
+    time.Sleep(time.Millisecond * 50)
+    matrix.DrawSprite(graphics.BOW_5[:])
+    time.Sleep(time.Millisecond * 100)
 }
 
 func deadWumpusAnimation() {
@@ -530,14 +598,35 @@ func arrowMissAnimation() {
 	// If the player misses the Wumpus
 
 	// Show the arrow flying past...
+    matrix.Clear()
+    time.Sleep(time.Millisecond * 1000)
+
+    for i := 0 ; i < 7 ; i += 2 {
+        if i > 0 {
+			matrix.Plot(uint(i - 2), 4, false)
+		}
+        matrix.Plot(uint(i), 4, true)
+        matrix.Draw()
+        tone(80, 100, 500)
+    }
+
+    // Clear the last arrow point
+    matrix.Clear()
+    matrix.Draw()
+
+    // ...and then the Wumpus gets the player
+    wumpusWinAnimation()
+    gameLost()
 }
 
 func wumpusWinAnimation() {
 
 	// Player gets attacked from the vicious Wumpus!
 	// Complete with nightmare-inducing sound
+	seq := graphics.WUMPUS_2[:]
+	seq = append(seq, graphics.WUMPUS_1[:]...)
 	for i := 0; i < 3; i++ {
-		//matrix.AnimateSequence([]string{graphics.WUMPUS_2, graphics.WUMPUS_1}, 250)
+		matrix.AnimateSequence(seq, 2, 250)
 	}
 
 	// Play the scream
@@ -545,8 +634,8 @@ func wumpusWinAnimation() {
 		tone(uint(i), 10, 1)
 	}
 
-	for i := 0; i < 3; i++ {
-		//matrix.AnimateSequence([]string{graphics.WUMPUS_2, graphics.WUMPUS_1}, 250)
+	for i := 0; i < 5; i++ {
+		matrix.AnimateSequence(seq, 2, 250)
 	}
 }
 
@@ -628,25 +717,26 @@ func playIntro() {
 /*
  *  Misc Functions
  */
-func irandom(start uint8, max uint8) uint8 {
+func irandom(start uint, max uint) uint {
 
-	return uint8(prand.Uint32()%uint32(max) + uint32(start))
-
+	return uint(prand.Uint32()%uint32(max) + uint32(start))
+	/*
 	b := make([]byte, 10)
 	_, err := rand.Read(b)
 	if err != nil {
 		// Just return a pseudo RN
-		return uint8(prand.Uint32()%uint32(max) + uint32(start))
+		return uint(prand.Uint32()%uint32(max) + uint32(start))
 	}
 	c := b[b[0]]
 
-	return uint8(c%max + start)
+	return uint(c%max + start)
+	*/
 }
 
 func tone(frequency uint, duration int, post uint32) {
 
-	time.Sleep(time.Duration(post) * time.Millisecond)
-	return
+	//time.Sleep(time.Duration(post) * time.Millisecond)
+	//return
 	
 	// Get the cycle period in microseconds
 	// NOTE Input is in Hz
@@ -654,10 +744,10 @@ func tone(frequency uint, duration int, post uint32) {
 	period /= 2
 
 	// Get the microsecond timer now
-	start := time.Now().Nanosecond()
+	start := time.Now()
 
 	// Loop until duration (ms) in nanoseconds has elapsed
-	for time.Now().Nanosecond() < start+duration*1000000 {
+	for time.Since(start).Microseconds() < int64(duration*1000) {
 		PIN_SPEAKER.High()
 		time.Sleep(time.Duration(period) * time.Microsecond)
 		PIN_SPEAKER.Low()

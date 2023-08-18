@@ -81,7 +81,7 @@ func (p *HT16K33) DrawSprite(sprite []byte) {
 	p.Draw()
 }
 
-func (p *HT16K33) Plot(x uint8, y uint8, isSet bool) {
+func (p *HT16K33) Plot(x uint, y uint, isSet bool) {
 
 	// Set or unset the specified pixel
 	col := p.buffer[x]
@@ -180,11 +180,18 @@ func (p *HT16K33) Draw() {
 	p.i2cWriteBlock(output_buffer[:])
 }
 
-func (p *HT16K33) AnimateSequence(sequence [][]byte, interstitialPeriod int) {
+func (p *HT16K33) AnimateSequence(sequence []byte, frameCount int, interstitialPeriod int) {
 
-	for _, frame := range sequence {
+	count := 0
+	for {
+		frame := sequence[count:count + 8]
 		p.DrawSprite(frame)
 		time.Sleep(time.Millisecond * time.Duration(interstitialPeriod))
+
+		count += 8
+		if count >= (frameCount * 8) {
+			break
+		}
 	}
 }
 
