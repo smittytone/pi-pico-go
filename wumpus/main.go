@@ -402,7 +402,6 @@ func getDirection(x uint16, y uint16) uint {
 
 	// Get player direction from the analog input
 	// Centre = 32767, 32767; range 2048-65000
-
 	ydead := y > LOWER_LIMIT && y < UPPER_LIMIT
 	xdead := x > LOWER_LIMIT && x < UPPER_LIMIT
 
@@ -461,7 +460,7 @@ func drawWorld() {
 
 	// Draw the world on the 8x8 LED matrix
 	// and blink the player's location
-	//matrix.Clear()
+	matrix.Clear()
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			matrix.Plot(uint(i), uint(j), visited[i][j])
@@ -538,16 +537,17 @@ func checkHazards() bool {
 func grabbedByBat() {
 
 	// Show the bat flapping its wings
-
-	for i := 0; i < 8; i++ {
-		//matrix.AnimateSequence([][]byte{graphics.BAT_1, graphics.BAT_2}, 100)
-	}
-
 	// Play the animation sequence
-	//seq := [][]byte{graphics.CARRY_1, graphics.CARRY_2, graphics.CARRY_3, graphics.CARRY_4,
-	//	graphics.CARRY_5, graphics.CARRY_6, graphics.CARRY_7, graphics.CARRY_8,
-	//	graphics.CARRY_9}
-	//matrix.AnimateSequence(seq, 100)
+	seq := graphics.CARRY_1[:]
+	seq = append(seq, graphics.CARRY_2[:]...)
+	seq = append(seq, graphics.CARRY_3[:]...)
+	seq = append(seq, graphics.CARRY_4[:]...)
+	seq = append(seq, graphics.CARRY_5[:]...)
+	seq = append(seq, graphics.CARRY_6[:]...)
+	seq = append(seq, graphics.CARRY_7[:]...)
+	seq = append(seq, graphics.CARRY_8[:]...)
+	seq = append(seq, graphics.CARRY_9[:]...)
+	matrix.AnimateSequence(seq, 9, 100)
 }
 
 func plungedIntoPit() {
@@ -591,6 +591,30 @@ func fireArrowAnimation() {
 func deadWumpusAnimation() {
 
 	// The player successfully kills the Wumpus!
+	time.Sleep(time.Millisecond * 500)
+    matrix.DrawSprite(graphics.WUMPUS_1[:])
+    time.Sleep(time.Millisecond * 500)
+    matrix.DrawSprite(graphics.WUMPUS_3[:])
+    tone(900, 100, 100)
+    matrix.DrawSprite(graphics.WUMPUS_4[:])
+    tone(850, 100, 100)
+    matrix.DrawSprite(graphics.WUMPUS_5[:])
+    tone(800, 100, 100)
+    matrix.DrawSprite(graphics.WUMPUS_6[:])
+    tone(750, 100, 100)
+    matrix.DrawSprite(graphics.WUMPUS_7[:])
+    tone(700, 100, 100)
+    matrix.DrawSprite(graphics.WUMPUS_8[:])
+    tone(650, 100, 100)
+    matrix.DrawSprite(graphics.WUMPUS_9[:])
+    tone(600, 100, 100)
+    matrix.DrawSprite(graphics.WUMPUS_10[:])
+    tone(550, 100, 100)
+    matrix.Clear()
+    time.Sleep(time.Millisecond * 1000)
+
+    // Success!
+    gameWon()
 }
 
 func arrowMissAnimation() {
@@ -646,7 +670,6 @@ func gameWon() {
 
 	// Give the player a trophy
 	clearPins()
-
 	gameOver(textWin)
 }
 
@@ -654,7 +677,6 @@ func gameLost() {
 
 	// Give the player a funeral
 	clearPins()
-
 	gameOver(textLose)
 }
 
