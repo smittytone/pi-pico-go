@@ -128,7 +128,7 @@ func createWorld() {
 	// Generate sense data for sounds and LED reactions
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
-			if hazards[i][j] == 'w' {
+			if hazards[i][j] == WUMPUS {
 				if i < 7 {
 					stinkLayer[i+1][j] = true
 				}
@@ -141,7 +141,7 @@ func createWorld() {
 				if j > 0 {
 					stinkLayer[i][j-1] = true
 				}
-			} else if hazards[i][j] == 'p' {
+			} else if hazards[i][j] == PIT {
 				if i < 7 {
 					draughtLayer[i+1][j] = true
 				}
@@ -154,7 +154,7 @@ func createWorld() {
 				if j > 0 {
 					draughtLayer[i][j-1] = true
 				}
-			} else if hazards[i][j] == 'b' {
+			} else if hazards[i][j] == BAT {
 				if i < 7 {
 					soundLayer[i+1][j] = true
 				}
@@ -270,7 +270,7 @@ func gameLoop() {
 					switch lastMoveDirection {
 					case UP:
 						if playerY < 7 {
-							if hazards[playerX][playerY+1] == 'w' {
+							if hazards[playerX][playerY+1] == WUMPUS {
 								deadWumpusAnimation()
 							} else {
 								arrowMissAnimation()
@@ -279,7 +279,7 @@ func gameLoop() {
 						}
 					case DOWN:
 						if playerY > 0 {
-							if hazards[playerX][playerY-1] == 'w' {
+							if hazards[playerX][playerY-1] == WUMPUS {
 								deadWumpusAnimation()
 							} else {
 								arrowMissAnimation()
@@ -288,7 +288,7 @@ func gameLoop() {
 						}
 					case RIGHT:
 						if playerX < 7 {
-							if hazards[playerX+1][playerY] == 'w' {
+							if hazards[playerX+1][playerY] == WUMPUS {
 								deadWumpusAnimation()
 							} else {
 								arrowMissAnimation()
@@ -297,7 +297,7 @@ func gameLoop() {
 						}
 					case LEFT:
 						if playerX > 0 {
-							if hazards[playerX-1][playerY] == 'w' {
+							if hazards[playerX-1][playerY] == WUMPUS {
 								deadWumpusAnimation()
 							} else {
 								arrowMissAnimation()
