@@ -10,27 +10,29 @@ import (
  * GLOBALS
  */
 // Game board maps
-var hazards [8][8]uint8
-var visited [8][8]bool
-var stinkLayer [8][8]bool
-var soundLayer [8][8]bool
-var draughtLayer [8][8]bool
+var (
+	hazards [8][8]uint8
+	visited [8][8]bool
+	stinkLayer [8][8]bool
+	soundLayer [8][8]bool
+	draughtLayer [8][8]bool
 
-// Player state
-var playerX uint
-var playerY uint
-var lastMoveDirection uint
-var isInPlay bool
-var isPlayerPixelOn bool
+	// Player state
+	playerX uint
+	playerY uint
+	lastMoveDirection uint
+	isInPlay bool
+	isPlayerPixelOn bool
 
-// Display instance
-var matrix ht16k33.HT16K33
+	// Display instance
+	matrix ht16k33.HT16K33
 
-// Fire button debounce controls
-var debounceButtonCount time.Time
-var lastPlayerPixelFlash time.Time
-var isJoystickCentred bool = true
-var debounceButtonFlag bool = false
+	// Fire button debounce controls
+	debounceButtonCount time.Time
+	lastPlayerPixelFlash time.Time
+	isJoystickCentred bool = true
+	debounceButtonFlag bool = false
 
-var PIN_Y machine.ADC = machine.ADC{Pin: machine.GP27}
-var PIN_X machine.ADC = machine.ADC{Pin: machine.GP26}
+	PIN_Y machine.ADC = machine.ADC{Pin: machine.GP27}
+	PIN_X machine.ADC = machine.ADC{Pin: machine.GP26}
+)

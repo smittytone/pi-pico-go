@@ -87,6 +87,8 @@ func setup() bool {
 		return false
 	}
 
+	// Wait 2s to stabilise
+	sleep(2000)
 	return true
 }
 
