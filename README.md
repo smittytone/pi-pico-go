@@ -1,6 +1,6 @@
 # pi-pico-go
 
-Go experiments for the [Raspberry Pi RP2040 MCU](https://www.raspberrypi.com/documentation/microcontrollers/rp2040.html#documentation). This repo includes:
+Go experiments for the [Raspberry Pi RP2040 MCU](https://www.raspberrypi.com/documentation/microcontrollers/rp2040.html#documentation) using [TinyGo](https://tinygo.org/). This repo includes:
 
 ## Projects
 
@@ -32,6 +32,8 @@ A sample project to build a fun game.
 * Two standard breadboards.
 
 #### The circuit
+
+![Hunt the Wumpus circuit layout](images/wumpus.png)
 
 * Make sure you wire the LEDs correctly: longer leg to the Pico pin, shorter leg to GND.
 * The joystick shown is not the one used, but it gives you the idea. Connect white to the X pin, blue to the Y pin.
