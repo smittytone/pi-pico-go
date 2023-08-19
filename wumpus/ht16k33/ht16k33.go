@@ -32,12 +32,12 @@ type HT16K33 struct {
 	// Internal data: brightness level, buffer
 	address uint8
 	brightness uint
-	buffer [8]byte
+	buffer []byte
 }
 
 func New(bus machine.I2C) HT16K33 {
-
-	return HT16K33{bus: bus, address: HT16K33_ADDRESS, brightness: 15, buffer: [8]byte{}}
+	
+	return HT16K33{bus: bus, address: HT16K33_ADDRESS, brightness: 15, buffer: make([]byte, 8)}
 }
 
 func (p *HT16K33) Init() {
@@ -73,9 +73,7 @@ func (p *HT16K33) DrawSprite(sprite []byte) {
 
 	// Write the sprite across the matrix
 	// NOTE Assumes the sprite is 8 pixels wide
-	for i := 0; i < 8; i++ {
-		p.buffer[i] = sprite[i]
-	}
+	copy(p.buffer, sprite)
 
 	// Send the buffer to the LED matrix
 	p.Draw()
