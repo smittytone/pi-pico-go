@@ -102,6 +102,12 @@ func createWorld() {
 	startCorner := irandom(0, 4) << 1
 	playerX = startPoints[startCorner]
 	playerY = startPoints[startCorner+1]
+	// Set the incoming direction
+	if playerY == 0 {
+		lastMoveDirection = UP
+	} else {
+		lastMoveDirection = DOWN
+	}
 
 	// Initialise the world arrays
 	for i := 0; i < 8; i++ {
@@ -525,39 +531,39 @@ func grabbedByBatAnimation() {
  */
 func plungedIntoPitAnimation() {
 
-	matrix.DrawSprite(graphics.FALL_1)
+	matrix.DrawSprite(&graphics.FALL_1)
 	tone(3000, 100, 100)
-	matrix.DrawSprite(graphics.FALL_2)
+	matrix.DrawSprite(&graphics.FALL_2)
 	tone(2900, 100, 100)
-	matrix.DrawSprite(graphics.FALL_3)
+	matrix.DrawSprite(&graphics.FALL_3)
 	tone(2800, 100, 100)
-	matrix.DrawSprite(graphics.FALL_4)
+	matrix.DrawSprite(&graphics.FALL_4)
 	tone(2700, 100, 100)
-	matrix.DrawSprite(graphics.FALL_5)
+	matrix.DrawSprite(&graphics.FALL_5)
 	tone(2600, 100, 100)
-	matrix.DrawSprite(graphics.FALL_6)
+	matrix.DrawSprite(&graphics.FALL_6)
 	tone(2500, 100, 100)
-	matrix.DrawSprite(graphics.FALL_7)
+	matrix.DrawSprite(&graphics.FALL_7)
 	tone(2400, 100, 100)
-	matrix.DrawSprite(graphics.FALL_8)
+	matrix.DrawSprite(&graphics.FALL_8)
 	tone(2300, 100, 100)
-	matrix.DrawSprite(graphics.FALL_9)
+	matrix.DrawSprite(&graphics.FALL_9)
 	tone(2200, 100, 100)
-	matrix.DrawSprite(graphics.FALL_10)
+	matrix.DrawSprite(&graphics.FALL_10)
 	tone(2100, 100, 100)
-	matrix.DrawSprite(graphics.FALL_11)
+	matrix.DrawSprite(&graphics.FALL_11)
 	tone(2000, 100, 100)
-	matrix.DrawSprite(graphics.FALL_12)
+	matrix.DrawSprite(&graphics.FALL_12)
 	tone(1900, 100, 100)
-	matrix.DrawSprite(graphics.FALL_13)
+	matrix.DrawSprite(&graphics.FALL_13)
 	tone(1800, 100, 100)
-	matrix.DrawSprite(graphics.FALL_14)
+	matrix.DrawSprite(&graphics.FALL_14)
 	tone(1700, 100, 100)
-	matrix.DrawSprite(graphics.FALL_15)
+	matrix.DrawSprite(&graphics.FALL_15)
 	tone(1600, 100, 100)
-	matrix.DrawSprite(graphics.FALL_16)
+	matrix.DrawSprite(&graphics.FALL_16)
 	tone(1500, 100, 100)
-	matrix.DrawSprite(graphics.FALL_17)
+	matrix.DrawSprite(&graphics.FALL_17)
 	tone(1400, 100, 100)
 }
 
@@ -567,27 +573,27 @@ func plungedIntoPitAnimation() {
 func fireArrowAnimation() {
 
 	sleep(500)
-	matrix.DrawSprite(graphics.BOW_1[:])
+	matrix.DrawSprite(&graphics.BOW_1)
 	tone(100, 100, 100)
-	matrix.DrawSprite(graphics.BOW_2[:])
+	matrix.DrawSprite(&graphics.BOW_2)
 	tone(200, 100, 100)
-	matrix.DrawSprite(graphics.BOW_3[:])
+	matrix.DrawSprite(&graphics.BOW_3)
 	tone(300, 100, 1000)
-	matrix.DrawSprite(graphics.BOW_2[:])
+	matrix.DrawSprite(&graphics.BOW_2)
 
 	for i := 0; i < 50; i++ {
 		tone(irandom(200, 1500), 1, 1)
 	}
 
-	matrix.DrawSprite(graphics.BOW_1[:])
+	matrix.DrawSprite(&graphics.BOW_1)
 
 	for i := 0; i < 25; i++ {
 		tone(irandom(200, 1500), 1, 1)
 	}
 
-	matrix.DrawSprite(graphics.BOW_4[:])
+	matrix.DrawSprite(&graphics.BOW_4)
 	sleep(50)
-	matrix.DrawSprite(graphics.BOW_5[:])
+	matrix.DrawSprite(&graphics.BOW_5)
 	sleep(100)
 }
 
@@ -598,23 +604,23 @@ func deadWumpusAnimation() {
 
 	// The player successfully kills the Wumpus!
 	sleep(500)
-	matrix.DrawSprite(graphics.WUMPUS_1[:])
+	matrix.DrawSprite(&graphics.WUMPUS_1)
 	sleep(500)
-	matrix.DrawSprite(graphics.WUMPUS_3[:])
+	matrix.DrawSprite(&graphics.WUMPUS_3)
 	tone(900, 100, 100)
-	matrix.DrawSprite(graphics.WUMPUS_4[:])
+	matrix.DrawSprite(&graphics.WUMPUS_4)
 	tone(850, 100, 100)
-	matrix.DrawSprite(graphics.WUMPUS_5[:])
+	matrix.DrawSprite(&graphics.WUMPUS_5)
 	tone(800, 100, 100)
-	matrix.DrawSprite(graphics.WUMPUS_6[:])
+	matrix.DrawSprite(&graphics.WUMPUS_6)
 	tone(750, 100, 100)
-	matrix.DrawSprite(graphics.WUMPUS_7[:])
+	matrix.DrawSprite(&graphics.WUMPUS_7)
 	tone(700, 100, 100)
-	matrix.DrawSprite(graphics.WUMPUS_8[:])
+	matrix.DrawSprite(&graphics.WUMPUS_8)
 	tone(650, 100, 100)
-	matrix.DrawSprite(graphics.WUMPUS_9[:])
+	matrix.DrawSprite(&graphics.WUMPUS_9)
 	tone(600, 100, 100)
-	matrix.DrawSprite(graphics.WUMPUS_10[:])
+	matrix.DrawSprite(&graphics.WUMPUS_10)
 	tone(550, 100, 100)
 	matrix.Clear()
 	sleep(1000)
@@ -627,8 +633,6 @@ func deadWumpusAnimation() {
  * @brief Animate the arrow's flight.
  */
 func arrowMissAnimation() {
-
-	// If the player misses the Wumpus
 
 	// Show the arrow flying past...
 	matrix.Clear()
@@ -679,7 +683,7 @@ func wumpusWinAnimation() {
 func gameWon() {
 
 	clearPins()
-	matrix.DrawSprite(graphics.TROPHY)
+	matrix.DrawSprite(&graphics.TROPHY)
 	matrix.SetBrightness(irandom(1, 15))
 	tone(1397, 100, 100)
 	matrix.SetBrightness(irandom(7, 14))
@@ -759,11 +763,8 @@ func gameOver(text string) {
 
 	// Show final message and
 	// clear the screen for the next game
-	for i := 0; i < 2; i++ {
-		matrix.Print(text)
-	}
-
 	isInPlay = false
+	matrix.Print(text)
 	matrix.Clear()
 	matrix.Draw()
 }
@@ -776,21 +777,21 @@ func playIntro() {
 	// A throwback to the theme played in the
 	// version by Gregory Yob in 1975.
 	// Also show the player entering the cave.
-	matrix.DrawSprite(graphics.BEGIN_1[:])
+	matrix.DrawSprite(&graphics.BEGIN_1)
 	tone(147, 200, 100) //D3
-	matrix.DrawSprite(graphics.BEGIN_2[:])
+	matrix.DrawSprite(&graphics.BEGIN_2)
 	tone(165, 200, 100) //E3
-	matrix.DrawSprite(graphics.BEGIN_3[:])
+	matrix.DrawSprite(&graphics.BEGIN_3)
 	tone(175, 200, 100) //F3
-	matrix.DrawSprite(graphics.BEGIN_4[:])
+	matrix.DrawSprite(&graphics.BEGIN_4)
 	tone(196, 200, 100) //G3
-	matrix.DrawSprite(graphics.BEGIN_5[:])
+	matrix.DrawSprite(&graphics.BEGIN_5)
 	tone(220, 200, 100) //A4
-	matrix.DrawSprite(graphics.BEGIN_6[:])
+	matrix.DrawSprite(&graphics.BEGIN_6)
 	tone(175, 200, 100) //F3
-	matrix.DrawSprite(graphics.BEGIN_7[:])
+	matrix.DrawSprite(&graphics.BEGIN_7)
 	tone(220, 400, 100) //A4
-	matrix.DrawSprite(graphics.BEGIN_4[:])
+	matrix.DrawSprite(&graphics.BEGIN_4)
 	tone(208, 200, 100) //G#3
 	tone(175, 200, 100) //E#3
 	tone(208, 400, 100) //G#3

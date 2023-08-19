@@ -34,12 +34,12 @@ type HT16K33 struct {
 	// Internal data: brightness level, buffer
 	address uint8
 	brightness uint
-	buffer []byte
+	buffer [8]byte
 }
 
 func New(bus machine.I2C) HT16K33 {
-	
-	return HT16K33{bus: bus, address: HT16K33_ADDRESS, brightness: 15, buffer: make([]byte, 8)}
+
+	return HT16K33{bus: bus, address: HT16K33_ADDRESS, brightness: 15, buffer: [8]byte{0,0,0,0,0,0,0,0}}
 }
 
 func (p *HT16K33) Init() {
@@ -71,11 +71,11 @@ func (p *HT16K33) SetBrightness(brightness uint) {
 	p.i2cWriteByte(HT16K33_GENERIC_CMD_BRIGHTNESS | byte(brightness&0xFF))
 }
 
-func (p *HT16K33) DrawSprite(sprite []byte) {
+func (p *HT16K33) DrawSprite(sprite *graphics.Sprite) {
 
 	// Write the sprite across the matrix
 	// NOTE Assumes the sprite is 8 pixels wide
-	copy(p.buffer, sprite)
+	p.buffer = *sprite
 
 	// Send the buffer to the LED matrix
 	p.Draw()
@@ -102,10 +102,11 @@ func (p *HT16K33) Print(text string) {
 	// Get the length of the text: the number of columns it encompasses
 	length := 0
 	for i := 0; i < len(text); i++ {
-		ascii := text[i] - 32
-		length += 2
+		ascii := int(text[i]) - 32
 		if ascii != 0 {
 			length += len(graphics.CHARSET[ascii]) + 1
+		} else {
+			length += 2
 		}
 	}
 
@@ -118,7 +119,7 @@ func (p *HT16K33) Print(text string) {
 	// Write each character's glyph columns into the output buffer
 	col := 0
 	for i := 0; i < len(text); i++ {
-		ascii := text[i] - 32
+		ascii := int(text[i]) - 32
 		if ascii == 0 {
 			// It's a space, so just add two blank columns
 			col += 2
@@ -151,7 +152,7 @@ func (p *HT16K33) Print(text string) {
 			break
 		}
 
-		time.Sleep(75 * time.Millisecond)
+		time.Sleep(80 * time.Millisecond)
 	}
 }
 
@@ -184,8 +185,9 @@ func (p *HT16K33) AnimateSequence(sequence []byte, frameCount int, interstitialP
 
 	count := 0
 	for {
-		frame := sequence[count:count + 8]
-		p.DrawSprite(frame)
+		frame := graphics.Sprite{}
+		copy(frame[:], sequence[count:count + 8])
+		p.DrawSprite(&frame)
 		time.Sleep(time.Millisecond * time.Duration(interstitialPeriod))
 
 		count += 8
