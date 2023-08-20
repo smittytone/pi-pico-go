@@ -1,4 +1,14 @@
-package main
+/*
+ * Hunt the Wumpus for Raspberry Pi Pico
+ * Go version
+ *
+ * @version     1.0.1
+ * @authors     smittytone
+ * @copyright   2023, Tony Smith
+ * @licence     MIT
+ *
+ */
+ package main
 
 import (
 	"machine"
@@ -12,6 +22,7 @@ const (
 	textWin  string = "    YOU BEAT THE WUMPUS!    "
 	textLose string = "    THE WUMPUS KILLED YOU!    "
 	textFell string = "    YOU DIED!    "
+	textIntro string = "    ** HUNT THE WUMPUS **    "
 
 	ON  bool = true
 	OFF bool = false
