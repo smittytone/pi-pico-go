@@ -2,7 +2,7 @@
  * Hunt the Wumpus for Raspberry Pi Pico
  * Go version
  *
- * @version     1.0.0
+ * @version     1.0.1
  * @authors     smittytone
  * @copyright   2023, Tony Smith
  * @licence     MIT
@@ -16,51 +16,88 @@ import (
 	"wumpus/graphics"
 )
 
-// HT16K33 LED Matrix Commands
 const (
-	HT16K33_GENERIC_DISPLAY_ON uint8 = 0x81
-	HT16K33_GENERIC_DISPLAY_OFF uint8 = 0x80
-	HT16K33_GENERIC_SYSTEM_ON uint8 = 0x21
-	HT16K33_GENERIC_SYSTEM_OFF uint8 = 0x20
-	HT16K33_GENERIC_DISPLAY_ADDRESS uint8 = 0x00
-	HT16K33_GENERIC_CMD_BRIGHTNESS uint8 = 0xE0
-	HT16K33_GENERIC_CMD_BLINK uint8 = 0x81
+	HT16K33_CMD_DISPLAY_ON uint8 = 0x81
+	HT16K33_CMD_DISPLAY_OFF uint8 = 0x80
+	HT16K33_CMD_SYSTEM_ON uint8 = 0x21
+	HT16K33_CMD_SYSTEM_OFF uint8 = 0x20
+	HT16K33_FRAME_STORE_ADDRESS uint8 = 0x00
+	HT16K33_CMD_BRIGHTNESS uint8 = 0xE0
+	HT16K33_CMD_BLINK uint8 = 0x81
 	HT16K33_ADDRESS uint8 = 0x70
 )
 
 type HT16K33 struct {
 	// Host I2C bus
 	bus machine.I2C
-	// Internal data: brightness level, buffer
+	// Internal data: I2C address, brightness level, frame buffer
 	address uint8
 	brightness uint
 	buffer [8]byte
 }
 
-func New(bus machine.I2C) HT16K33 {
+/*
+ * @brief Convenience method to instantiate and initialise
+ *        an HT16K33 struct.
+ *
+ * @param bus:     A TinyGo machine.I2C instance.
+ *                 IMPORTANT This must be configured by the calling
+ *                           application BEFORE calling `init()` or any
+ *                           other HT16K33 method.
+ * @param address: The display's 7-bit I2C address. Defaults to `0x70`
+ *                 if out of range.
+ */
+func New(bus machine.I2C, address uint8) HT16K33 {
 
-	return HT16K33{bus: bus, address: HT16K33_ADDRESS, brightness: 15, buffer: [8]byte{0,0,0,0,0,0,0,0}}
+	if address < 8 || address > 0xF0 {
+		address = HT16K33_ADDRESS
+	}
+	return HT16K33{
+		bus: bus, 
+		address: address, 
+		brightness: 15, 
+		buffer: [8]byte{0,0,0,0,0,0,0,0},
+	}
 }
 
+/*
+ * @brief Convenience method to power on the display, set a default
+ *        brightness, clear the frame buffer and write the buffer to
+ *        the display.
+ */
 func (p *HT16K33) Init() {
 
 	p.Power(true)
-	p.SetBrightness(2)
+	p.SetBrightness(15)
 	p.Clear()
 	p.Draw()
 }
 
+/*
+ * @brief Turn the display on or off.
+ *        The display must be turned on before it can be used
+ *        (by calling `Draw()`).
+ *
+ * @param isOn: `true` to enable the display, `false` to turn it off.
+ */
 func (p *HT16K33) Power(isOn bool) {
 
 	if isOn {
-		p.i2cWriteByte(HT16K33_GENERIC_SYSTEM_ON)
-		p.i2cWriteByte(HT16K33_GENERIC_DISPLAY_ON)
+		p.i2cWriteByte(HT16K33_CMD_SYSTEM_ON)
+		p.i2cWriteByte(HT16K33_CMD_DISPLAY_ON)
 	} else {
-		p.i2cWriteByte(HT16K33_GENERIC_DISPLAY_OFF)
-		p.i2cWriteByte(HT16K33_GENERIC_SYSTEM_OFF)
+		p.i2cWriteByte(HT16K33_CMD_DISPLAY_OFF)
+		p.i2cWriteByte(HT16K33_CMD_SYSTEM_OFF)
 	}
 }
 
+/*
+ * @brief Set the display's brightness. 
+ *        The effect is immediate.
+ *
+ * @param brightness: A value between 0 (dim) and 15 (very bright).
+ *                    Note that 0 does not turn off the display.
+ */
 func (p *HT16K33) SetBrightness(brightness uint) {
 
 	if brightness > 15 {
@@ -68,9 +105,15 @@ func (p *HT16K33) SetBrightness(brightness uint) {
 	}
 
 	p.brightness = 15
-	p.i2cWriteByte(HT16K33_GENERIC_CMD_BRIGHTNESS | byte(brightness&0xFF))
+	p.i2cWriteByte(HT16K33_CMD_BRIGHTNESS | byte(brightness&0xFF))
 }
 
+/*
+ * @brief Write a graphic pattern to the frame buffer.
+ *        Doesn't update the display -- call `Draw()` to do so.
+ *
+ * @param sprite: A graphic stored as an [8]byte array.
+ */
 func (p *HT16K33) DrawSprite(sprite *graphics.Sprite) {
 
 	// Write the sprite across the matrix
@@ -81,6 +124,17 @@ func (p *HT16K33) DrawSprite(sprite *graphics.Sprite) {
 	p.Draw()
 }
 
+/*
+ * @brief Turn a specific pixel on the 8x8 matrix on or off.
+ *        (0,0) is the bottom left corner as per the orientation
+ *        in the circuit diagram here:
+ *        https://github.com/smittytone/pi-pico-go
+ *        Doesn't update the display -- call `Draw()` to do so.
+ *
+ * @param x:     The pixel's X co-ordinate.
+ * @param y:     The pixel's Y co-ordinate.
+ * @param isSet: `true` to light the pixel, `false` to clear it.
+ */
 func (p *HT16K33) Plot(x uint, y uint, isSet bool) {
 
 	// Set or unset the specified pixel
@@ -95,9 +149,13 @@ func (p *HT16K33) Plot(x uint, y uint, isSet bool) {
 	p.buffer[x] = col
 }
 
+/*
+ * @brief Scroll a text string across the display.
+ *        The text should only contain valid Ascii characters.
+ *
+ * @param text: The string to scroll.
+ */
 func (p *HT16K33) Print(text string) {
-
-	// Scroll the supplied text horizontally across the 8x8 matrix
 
 	// Get the length of the text: the number of columns it encompasses
 	length := 0
@@ -131,8 +189,6 @@ func (p *HT16K33) Print(text string) {
 				src_buffer[col] = graphics.CHARSET[ascii][j]
 				col += 1
 			}
-
-			col += 1
 		}
 	}
 
@@ -152,26 +208,34 @@ func (p *HT16K33) Print(text string) {
 			break
 		}
 
+		// Pause between frames
 		time.Sleep(80 * time.Millisecond)
 	}
 }
 
+/*
+ * @brief Clear the internal frame buffer. 
+ *        Doesn't update the display -- call `Draw()` to do so.
+ */
 func (p *HT16K33) Clear() {
 
-	// Clear the display buffer
+	// NOTE Better (no garbage collection) to populate the
+	//      existing array than just create a new one?
 	for i := 0; i < 8; i++ {
 		p.buffer[i] = 0x00
 	}
 }
 
+/*
+ * @brief Write the internal frame buffer to the display.
+ */
 func (p *HT16K33) Draw() {
 
-	// Set up the buffer holding the data to be
-	// transmitted to the LED
+	// Set up the buffer holding the data to be transmitted
 	output_buffer := [17]byte{}
 
-	// Span the 8 bytes of the graphics buffer
-	// across the 16 bytes of the LED's buffer
+	// Span the 8 bytes of the frame buffer
+	// across the 16 bytes of the TX buffer
 	for i := 0; i < 8; i++ {
 		a := p.buffer[i]
 		output_buffer[i*2+1] = (a >> 1) + ((a << 7) & 0xFF)
@@ -181,6 +245,13 @@ func (p *HT16K33) Draw() {
 	p.i2cWriteBlock(output_buffer[:])
 }
 
+/*
+ * @brief Display a series of 8x8 frames on the display.
+ *
+ * @param sequence:           A slice containing all the frames in order.
+ * @param frameCount:         The number of 8x8 frames in the sequence.
+ * @param interstitialPeriod: The time in ms between frames.
+ */
 func (p *HT16K33) AnimateSequence(sequence []byte, frameCount int, interstitialPeriod int) {
 
 	count := 0
@@ -197,6 +268,11 @@ func (p *HT16K33) AnimateSequence(sequence []byte, frameCount int, interstitialP
 	}
 }
 
+/*
+ * @brief Write a byte to I2C.
+ *
+ * @param value: The byte to write.
+ */
 func (p *HT16K33) i2cWriteByte(value byte) {
 
 	// Convenience function to write a single byte to the matrix
@@ -204,6 +280,11 @@ func (p *HT16K33) i2cWriteByte(value byte) {
 	p.bus.Tx(uint16(HT16K33_ADDRESS), data[:], nil)
 }
 
+/*
+ * @brief Write a series of bytes to I2C.
+ *
+ * @param value: A slice of the bytes to write.
+ */
 func (p *HT16K33) i2cWriteBlock(data []byte) {
 
 	// Convenience function to write a 'count' bytes to the matrix
