@@ -19,10 +19,10 @@ import (
  */
 const (
 	// Game outcome strings
-	textWin  string = "    YOU BEAT THE WUMPUS!    "
-	textLose string = "    THE WUMPUS KILLED YOU!    "
-	textFell string = "    YOU DIED!    "
-	textIntro string = "    ** HUNT THE WUMPUS **    "
+	textWin  string = "    You defeate the Wumpus!    "
+	textLose string = "    The Wumpus killed you!    "
+	textFell string = "    You fell to your death    "
+	textIntro string = "    HUNT THE WUMPUS    "
 
 	ON  bool = true
 	OFF bool = false

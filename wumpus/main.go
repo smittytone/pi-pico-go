@@ -11,6 +11,7 @@
 package main
 
 import (
+	"fmt"
 	"machine"
 	rnd "math/rand"
 	"time"
@@ -68,6 +69,7 @@ func setup() bool {
 	// Set up the LED matrix
 	matrix = ht16k33.New(*i2c, ht16k33.HT16K33_ADDRESS)
 	matrix.Init()
+	matrix.SetBrightness(4)
 
 	// Set up sense indicator output pins:
 	// Green is the Wumpus nearby indicator
@@ -338,7 +340,8 @@ func gameLoop() {
 
 	// FROM 1.0.1
 	// Display session state
-	displayReport()
+	report := fmt.Sprintf("    Games won: %d, lost: %d    ", gamesWon, gamesLost)
+	matrix.Print(report)
 }
 
 /*
@@ -764,6 +767,21 @@ func gameLost(wumpusWon bool) {
 
 	gamesLost += 1
 	clearPins()
+
+	// Show the player's grave
+	matrix.DrawSprite(&graphics.GRAVE)
+    tone(294, 400, 200)
+    tone(294, 400, 200)
+    tone(294, 100, 200)
+    tone(294, 400, 200)
+    tone(349, 400, 200)
+    tone(330, 100, 200)
+    tone(330, 400, 200)
+    tone(294, 100, 200)
+    tone(294, 400, 200)
+    tone(294, 100, 200)
+    tone(294, 800, 3000)
+
 	if wumpusWon {
 		gameOver(textLose)
 	} else {
@@ -900,57 +918,4 @@ func failLoop() {
 func sleep(period uint32) {
 
 	time.Sleep(time.Duration(period) * time.Millisecond)
-}
-
-func displayReport() {
-
-	wonBytes := getAsc(gamesWon)
-	lostBytes := getAsc(gamesLost)
-	reportBytes := make([]byte, 15)
-	copy(reportBytes, []byte("    Games won: "))
-	idx := 15
-	for i:= 0 ; i < 3 ; i++ {
-		if wonBytes[i] > 0 {
-			reportBytes[idx] = wonBytes[i]
-			idx += 1
-		}
-	}
-
-	reportBytes = append(reportBytes, []byte(", lost: ")...)
-	idx += 8
-	for i:= 0 ; i < 3 ; i++ {
-		if lostBytes[i] > 0 {
-			reportBytes[idx] = lostBytes[i]
-			idx += 1
-		}
-	}
-
-	reportBytes = append(reportBytes, []byte("    ")...)
-	matrix.Print(string(reportBytes))
-}
-
-func getAsc(value uint) *[3]byte {
-
-	tmp := [3]byte{0,0,0}
-	if value > 999 {
-		return &tmp
-	}
-
-	for {
-		var a uint = 0
-		if value > 99 {
-			a = value / 100
-			tmp[0] = uint8(48 + a)
-		} else if value > 9 {
-			a = value / 10
-			tmp[1] = uint8(48 + a)
-		} else {
-			tmp[2] = uint8(48 + value)
-			break
-		}
-
-		value -= a
-	}
-
-	return &tmp
 }
