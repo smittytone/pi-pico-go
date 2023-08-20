@@ -2,7 +2,7 @@
  * Hunt the Wumpus for Raspberry Pi Pico
  * Go version
  *
- * @version     1.0.0
+ * @version     1.0.1
  * @authors     smittytone
  * @copyright   2023, Tony Smith
  * @licence     MIT
@@ -24,6 +24,10 @@ func main() {
 	if !setup() {
 		failLoop()
 	}
+
+	// FROM 1.0.1
+	// Splash screen
+	matrix.Print(textIntro)
 
 	// Play the game
 	for {
@@ -57,7 +61,7 @@ func setup() bool {
 	}
 
 	// Set up the LED matrix
-	matrix = ht16k33.New(*i2c)
+	matrix = ht16k33.New(*i2c, ht16k33.HT16K33_ADDRESS)
 	matrix.Init()
 
 	// Set up sense indicator output pins:
@@ -99,7 +103,7 @@ func createWorld() {
 
 	// The player starts at (0,0)
 	startPoints := [8]uint{0, 0, 0, 7, 7, 7, 7, 0}
-	startCorner := irandom(0, 4) << 1
+	startCorner := randomInt(0, 4) << 1
 	playerX = startPoints[startCorner]
 	playerY = startPoints[startCorner+1]
 	// Set the incoming direction
@@ -121,10 +125,10 @@ func createWorld() {
 	}
 
 	// Create 1-3 bats
-	rollHazards(BAT, irandom(1, 4))
+	rollHazards(BAT, randomInt(1, 4))
 
 	// Create 1-3 pits
-	rollHazards(PIT, irandom(1, 4))
+	rollHazards(PIT, randomInt(1, 4))
 
 	// Create one wumpus
 	// NOTE It's generated last so bats and pits
@@ -186,21 +190,21 @@ func createWorld() {
  */
 func rollHazards(hazardType uint8, count uint) {
 
-	var hazard_x uint = 0
-	var hazard_y uint = 0
+	var hazardX uint = 0
+	var hazardY uint = 0
 	var i uint
 	for i = 0; i < count; i++ {
 		for {
 			// Make sure the rolled square is empty
-			hazard_x = irandom(0, 8)
-			hazard_y = irandom(0, 8)
-			if hazards[hazard_x][hazard_y] == EMPTY && hazard_x != playerX && hazard_y != playerY {
+			hazardX = randomInt(0, 8)
+			hazardY = randomInt(0, 8)
+			if hazards[hazardX][hazardY] == EMPTY && hazardX != playerX && hazardY != playerY {
 				break
 			}
 		}
 
 		// Place the hazard
-		hazards[hazard_x][hazard_y] = hazardType
+		hazards[hazardX][hazardY] = hazardType
 	}
 }
 
@@ -368,10 +372,10 @@ func getDirection(x uint16, y uint16) uint {
 
 	// Get player direction from the analog input
 	// Centre = 32767, 32767; range 2048-65000
-	ydead := y > LOWER_LIMIT && y < UPPER_LIMIT
-	xdead := x > LOWER_LIMIT && x < UPPER_LIMIT
+	yInDeadZone := y > LOWER_LIMIT && y < UPPER_LIMIT
+	xInDeadZone := x > LOWER_LIMIT && x < UPPER_LIMIT
 
-	if ydead && !xdead {
+	if yInDeadZone && !xInDeadZone {
 		if x < LOWER_LIMIT {
 			return RIGHT
 		}
@@ -381,7 +385,7 @@ func getDirection(x uint16, y uint16) uint {
 		}
 	}
 
-	if xdead && !ydead {
+	if xInDeadZone && !yInDeadZone {
 		if y < LOWER_LIMIT {
 			return DOWN
 		}
@@ -391,7 +395,7 @@ func getDirection(x uint16, y uint16) uint {
 		}
 	}
 
-	if !xdead && !ydead {
+	if !xInDeadZone && !yInDeadZone {
 		if x < LOWER_LIMIT {
 			return RIGHT
 		}
@@ -482,9 +486,9 @@ func checkHazards() bool {
 		// ...then drop the player at random
 		var x uint
 		var y uint
-		for true {
-			x = irandom(0, 8)
-			y = irandom(0, 8)
+		for {
+			x = randomInt(0, 8)
+			y = randomInt(0, 8)
 			if hazards[x][y] == EMPTY {
 				break
 			}
@@ -582,13 +586,13 @@ func fireArrowAnimation() {
 	matrix.DrawSprite(&graphics.BOW_2)
 
 	for i := 0; i < 50; i++ {
-		tone(irandom(200, 1500), 1, 1)
+		tone(randomInt(200, 1500), 1, 1)
 	}
 
 	matrix.DrawSprite(&graphics.BOW_1)
 
 	for i := 0; i < 25; i++ {
-		tone(irandom(200, 1500), 1, 1)
+		tone(randomInt(200, 1500), 1, 1)
 	}
 
 	matrix.DrawSprite(&graphics.BOW_4)
@@ -684,51 +688,51 @@ func gameWon() {
 
 	clearPins()
 	matrix.DrawSprite(&graphics.TROPHY)
-	matrix.SetBrightness(irandom(1, 15))
+	matrix.SetBrightness(randomInt(1, 15))
 	tone(1397, 100, 100)
-	matrix.SetBrightness(irandom(7, 14))
+	matrix.SetBrightness(randomInt(7, 14))
 	sleep(100)
-	matrix.SetBrightness(irandom(1, 8))
+	matrix.SetBrightness(randomInt(1, 8))
 	tone(1397, 100, 100)
-	matrix.SetBrightness(irandom(7, 14))
+	matrix.SetBrightness(randomInt(7, 14))
 	sleep(100)
-	matrix.SetBrightness(irandom(1, 8))
+	matrix.SetBrightness(randomInt(1, 8))
 	tone(1397, 100, 100)
-	matrix.SetBrightness(irandom(7, 14))
+	matrix.SetBrightness(randomInt(7, 14))
 	sleep(100)
-	matrix.SetBrightness(irandom(1, 8))
+	matrix.SetBrightness(randomInt(1, 8))
 	tone(1397, 200, 100)
-	matrix.SetBrightness(irandom(7, 14))
+	matrix.SetBrightness(randomInt(7, 14))
 	sleep(100)
-	matrix.SetBrightness(irandom(1, 8))
+	matrix.SetBrightness(randomInt(1, 8))
 	sleep(100)
-	matrix.SetBrightness(irandom(7, 14))
+	matrix.SetBrightness(randomInt(7, 14))
 	tone(1175, 200, 100)
-	matrix.SetBrightness(irandom(1, 8))
+	matrix.SetBrightness(randomInt(1, 8))
 	sleep(100)
-	matrix.SetBrightness(irandom(7, 14))
+	matrix.SetBrightness(randomInt(7, 14))
 	sleep(100)
-	matrix.SetBrightness(irandom(1, 8))
+	matrix.SetBrightness(randomInt(1, 8))
 	tone(1319, 200, 100)
-	matrix.SetBrightness(irandom(7, 14))
+	matrix.SetBrightness(randomInt(7, 14))
 	sleep(100)
-	matrix.SetBrightness(irandom(1, 8))
+	matrix.SetBrightness(randomInt(1, 8))
 	sleep(100)
-	matrix.SetBrightness(irandom(7, 14))
+	matrix.SetBrightness(randomInt(7, 14))
 	tone(1397, 200, 100)
-	matrix.SetBrightness(irandom(1, 8))
+	matrix.SetBrightness(randomInt(1, 8))
 	sleep(100)
-	matrix.SetBrightness(irandom(7, 14))
+	matrix.SetBrightness(randomInt(7, 14))
 	sleep(100)
-	matrix.SetBrightness(irandom(1, 8))
+	matrix.SetBrightness(randomInt(1, 8))
 	tone(1319, 150, 150)
-	matrix.SetBrightness(irandom(7, 14))
+	matrix.SetBrightness(randomInt(7, 14))
 	tone(1397, 400, 100)
 
 	for i := 0; i < 6; i++ {
-		matrix.SetBrightness(irandom(1, 8))
+		matrix.SetBrightness(randomInt(1, 8))
 		sleep(125)
-		matrix.SetBrightness(irandom(7, 14))
+		matrix.SetBrightness(randomInt(7, 14))
 		sleep(125)
 	}
 
@@ -821,7 +825,7 @@ func playIntro() {
  *
  * @returns: The value.
  */
-func irandom(start uint, max uint) uint {
+func randomInt(start uint, max uint) uint {
 
 	value, err := machine.GetRNG()
 	if err != nil {
