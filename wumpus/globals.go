@@ -45,4 +45,8 @@ var (
 
 	PIN_Y machine.ADC = machine.ADC{Pin: machine.GP27}
 	PIN_X machine.ADC = machine.ADC{Pin: machine.GP26}
+
+	// FROM 1.0.1
+	gamesWon uint
+	gamesLost uint
 )

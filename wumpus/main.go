@@ -29,6 +29,11 @@ func main() {
 	// Splash screen
 	matrix.Print(textIntro)
 
+	// FROM 1.0.1
+	// Initiate session
+	gamesWon = 0
+	gamesLost = 0
+
 	// Play the game
 	for {
 		// Set up a new round...
@@ -330,6 +335,10 @@ func gameLoop() {
 			sleep(50)
 		}
 	}
+
+	// FROM 1.0.1
+	// Display session state
+	displayReport()
 }
 
 /*
@@ -686,6 +695,7 @@ func wumpusWinAnimation() {
  */
 func gameWon() {
 
+	gamesWon += 1
 	clearPins()
 	matrix.DrawSprite(&graphics.TROPHY)
 	matrix.SetBrightness(randomInt(1, 15))
@@ -752,6 +762,7 @@ func gameWon() {
  */
 func gameLost(wumpusWon bool) {
 
+	gamesLost += 1
 	clearPins()
 	if wumpusWon {
 		gameOver(textLose)
@@ -889,4 +900,57 @@ func failLoop() {
 func sleep(period uint32) {
 
 	time.Sleep(time.Duration(period) * time.Millisecond)
+}
+
+func displayReport() {
+
+	wonBytes := getAsc(gamesWon)
+	lostBytes := getAsc(gamesLost)
+	reportBytes := make([]byte, 15)
+	copy(reportBytes, []byte("    Games won: "))
+	idx := 15
+	for i:= 0 ; i < 3 ; i++ {
+		if wonBytes[i] > 0 {
+			reportBytes[idx] = wonBytes[i]
+			idx += 1
+		}
+	}
+
+	reportBytes = append(reportBytes, []byte(", lost: ")...)
+	idx += 8
+	for i:= 0 ; i < 3 ; i++ {
+		if lostBytes[i] > 0 {
+			reportBytes[idx] = lostBytes[i]
+			idx += 1
+		}
+	}
+
+	reportBytes = append(reportBytes, []byte("    ")...)
+	matrix.Print(string(reportBytes))
+}
+
+func getAsc(value uint) *[3]byte {
+
+	tmp := [3]byte{0,0,0}
+	if value > 999 {
+		return &tmp
+	}
+
+	for {
+		var a uint = 0
+		if value > 99 {
+			a = value / 100
+			tmp[0] = uint8(48 + a)
+		} else if value > 9 {
+			a = value / 10
+			tmp[1] = uint8(48 + a)
+		} else {
+			tmp[2] = uint8(48 + value)
+			break
+		}
+
+		value -= a
+	}
+
+	return &tmp
 }
