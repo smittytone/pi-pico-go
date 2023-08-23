@@ -2,7 +2,7 @@
  * Hunt the Wumpus for Raspberry Pi Pico
  * Go version
  *
- * @version     1.0.1
+ * @version     1.0.2
  * @authors     smittytone
  * @copyright   2023, Tony Smith
  * @licence     MIT

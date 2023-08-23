@@ -2,7 +2,7 @@
  * Hunt the Wumpus for Raspberry Pi Pico
  * Go version
  *
- * @version     1.0.1
+ * @version     1.0.2
  * @authors     smittytone
  * @copyright   2023, Tony Smith
  * @licence     MIT
@@ -530,7 +530,15 @@ func checkHazards() bool {
  */
 func grabbedByBatAnimation() {
 
-	sequence := graphics.CARRY_1[:]
+	// Show the bat flapping its wings
+	sequence := graphics.BAT_1[:]
+	sequence = append(sequence, graphics.BAT_2[:]...)
+	for i := 0 ; i < 8 ; i++ {
+		matrix.AnimateSequence(sequence, 2, 100)
+	}
+
+	// Play the carry animation
+	sequence = graphics.CARRY_1[:]
 	sequence = append(sequence, graphics.CARRY_2[:]...)
 	sequence = append(sequence, graphics.CARRY_3[:]...)
 	sequence = append(sequence, graphics.CARRY_4[:]...)

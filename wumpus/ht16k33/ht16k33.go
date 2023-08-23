@@ -2,7 +2,7 @@
  * Hunt the Wumpus for Raspberry Pi Pico
  * Go version
  *
- * @version     1.0.1
+ * @version     1.0.2
  * @authors     smittytone
  * @copyright   2023, Tony Smith
  * @licence     MIT
@@ -53,9 +53,9 @@ func New(bus machine.I2C, address uint8) HT16K33 {
 		address = HT16K33_ADDRESS
 	}
 	return HT16K33{
-		bus: bus, 
-		address: address, 
-		brightness: 15, 
+		bus: bus,
+		address: address,
+		brightness: 15,
 		buffer: [8]byte{0,0,0,0,0,0,0,0},
 	}
 }
@@ -92,7 +92,7 @@ func (p *HT16K33) Power(isOn bool) {
 }
 
 /*
- * @brief Set the display's brightness. 
+ * @brief Set the display's brightness.
  *        The effect is immediate.
  *
  * @param brightness: A value between 0 (dim) and 15 (very bright).
@@ -214,7 +214,7 @@ func (p *HT16K33) Print(text string) {
 }
 
 /*
- * @brief Clear the internal frame buffer. 
+ * @brief Clear the internal frame buffer.
  *        Doesn't update the display -- call `Draw()` to do so.
  */
 func (p *HT16K33) Clear() {
