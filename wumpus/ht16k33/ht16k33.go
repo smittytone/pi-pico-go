@@ -17,23 +17,23 @@ import (
 )
 
 const (
-	HT16K33_CMD_DISPLAY_ON uint8 = 0x81
-	HT16K33_CMD_DISPLAY_OFF uint8 = 0x80
-	HT16K33_CMD_SYSTEM_ON uint8 = 0x21
-	HT16K33_CMD_SYSTEM_OFF uint8 = 0x20
+	HT16K33_CMD_DISPLAY_ON      uint8 = 0x81
+	HT16K33_CMD_DISPLAY_OFF     uint8 = 0x80
+	HT16K33_CMD_SYSTEM_ON       uint8 = 0x21
+	HT16K33_CMD_SYSTEM_OFF      uint8 = 0x20
 	HT16K33_FRAME_STORE_ADDRESS uint8 = 0x00
-	HT16K33_CMD_BRIGHTNESS uint8 = 0xE0
-	HT16K33_CMD_BLINK uint8 = 0x81
-	HT16K33_ADDRESS uint8 = 0x70
+	HT16K33_CMD_BRIGHTNESS      uint8 = 0xE0
+	HT16K33_CMD_BLINK           uint8 = 0x81
+	HT16K33_ADDRESS             uint8 = 0x70
 )
 
 type HT16K33 struct {
 	// Host I2C bus
 	bus machine.I2C
 	// Internal data: I2C address, brightness level, frame buffer
-	address uint8
+	address    uint8
 	brightness uint
-	buffer [8]byte
+	buffer     [8]byte
 }
 
 /*
@@ -53,10 +53,10 @@ func New(bus machine.I2C, address uint8) HT16K33 {
 		address = HT16K33_ADDRESS
 	}
 	return HT16K33{
-		bus: bus,
-		address: address,
+		bus:        bus,
+		address:    address,
 		brightness: 15,
-		buffer: [8]byte{0,0,0,0,0,0,0,0},
+		buffer:     [8]byte{0, 0, 0, 0, 0, 0, 0, 0},
 	}
 }
 
@@ -257,7 +257,7 @@ func (p *HT16K33) AnimateSequence(sequence []byte, frameCount int, interstitialP
 	count := 0
 	for {
 		frame := graphics.Sprite{}
-		copy(frame[:], sequence[count:count + 8])
+		copy(frame[:], sequence[count:count+8])
 		p.DrawSprite(&frame)
 		time.Sleep(time.Millisecond * time.Duration(interstitialPeriod))
 

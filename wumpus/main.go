@@ -531,22 +531,22 @@ func checkHazards() bool {
 func grabbedByBatAnimation() {
 
 	// Show the bat flapping its wings
-	sequence := graphics.BAT_1[:]
-	sequence = append(sequence, graphics.BAT_2[:]...)
-	for i := 0 ; i < 8 ; i++ {
+	sequence := graphics.BAT_01[:]
+	sequence = append(sequence, graphics.BAT_02[:]...)
+	for i := 0; i < 8; i++ {
 		matrix.AnimateSequence(sequence, 2, 100)
 	}
 
 	// Play the carry animation
-	sequence = graphics.CARRY_1[:]
-	sequence = append(sequence, graphics.CARRY_2[:]...)
-	sequence = append(sequence, graphics.CARRY_3[:]...)
-	sequence = append(sequence, graphics.CARRY_4[:]...)
-	sequence = append(sequence, graphics.CARRY_5[:]...)
-	sequence = append(sequence, graphics.CARRY_6[:]...)
-	sequence = append(sequence, graphics.CARRY_7[:]...)
-	sequence = append(sequence, graphics.CARRY_8[:]...)
-	sequence = append(sequence, graphics.CARRY_9[:]...)
+	sequence = graphics.CARRY_01[:]
+	sequence = append(sequence, graphics.CARRY_02[:]...)
+	sequence = append(sequence, graphics.CARRY_03[:]...)
+	sequence = append(sequence, graphics.CARRY_04[:]...)
+	sequence = append(sequence, graphics.CARRY_05[:]...)
+	sequence = append(sequence, graphics.CARRY_06[:]...)
+	sequence = append(sequence, graphics.CARRY_07[:]...)
+	sequence = append(sequence, graphics.CARRY_08[:]...)
+	sequence = append(sequence, graphics.CARRY_09[:]...)
 	matrix.AnimateSequence(sequence, 9, 100)
 }
 
@@ -555,23 +555,23 @@ func grabbedByBatAnimation() {
  */
 func plungedIntoPitAnimation() {
 
-	matrix.DrawSprite(&graphics.FALL_1)
+	matrix.DrawSprite(&graphics.FALL_01)
 	tone(3000, 100, 100)
-	matrix.DrawSprite(&graphics.FALL_2)
+	matrix.DrawSprite(&graphics.FALL_02)
 	tone(2900, 100, 100)
-	matrix.DrawSprite(&graphics.FALL_3)
+	matrix.DrawSprite(&graphics.FALL_03)
 	tone(2800, 100, 100)
-	matrix.DrawSprite(&graphics.FALL_4)
+	matrix.DrawSprite(&graphics.FALL_04)
 	tone(2700, 100, 100)
-	matrix.DrawSprite(&graphics.FALL_5)
+	matrix.DrawSprite(&graphics.FALL_05)
 	tone(2600, 100, 100)
-	matrix.DrawSprite(&graphics.FALL_6)
+	matrix.DrawSprite(&graphics.FALL_06)
 	tone(2500, 100, 100)
-	matrix.DrawSprite(&graphics.FALL_7)
+	matrix.DrawSprite(&graphics.FALL_07)
 	tone(2400, 100, 100)
-	matrix.DrawSprite(&graphics.FALL_8)
+	matrix.DrawSprite(&graphics.FALL_08)
 	tone(2300, 100, 100)
-	matrix.DrawSprite(&graphics.FALL_9)
+	matrix.DrawSprite(&graphics.FALL_09)
 	tone(2200, 100, 100)
 	matrix.DrawSprite(&graphics.FALL_10)
 	tone(2100, 100, 100)
@@ -597,27 +597,27 @@ func plungedIntoPitAnimation() {
 func fireArrowAnimation() {
 
 	sleep(500)
-	matrix.DrawSprite(&graphics.BOW_1)
+	matrix.DrawSprite(&graphics.BOW_01)
 	tone(100, 100, 100)
-	matrix.DrawSprite(&graphics.BOW_2)
+	matrix.DrawSprite(&graphics.BOW_02)
 	tone(200, 100, 100)
-	matrix.DrawSprite(&graphics.BOW_3)
+	matrix.DrawSprite(&graphics.BOW_03)
 	tone(300, 100, 1000)
-	matrix.DrawSprite(&graphics.BOW_2)
+	matrix.DrawSprite(&graphics.BOW_02)
 
 	for i := 0; i < 50; i++ {
 		tone(randomInt(200, 1500), 1, 1)
 	}
 
-	matrix.DrawSprite(&graphics.BOW_1)
+	matrix.DrawSprite(&graphics.BOW_01)
 
 	for i := 0; i < 25; i++ {
 		tone(randomInt(200, 1500), 1, 1)
 	}
 
-	matrix.DrawSprite(&graphics.BOW_4)
+	matrix.DrawSprite(&graphics.BOW_04)
 	sleep(50)
-	matrix.DrawSprite(&graphics.BOW_5)
+	matrix.DrawSprite(&graphics.BOW_05)
 	sleep(100)
 }
 
@@ -628,21 +628,21 @@ func deadWumpusAnimation() {
 
 	// The player successfully kills the Wumpus!
 	sleep(500)
-	matrix.DrawSprite(&graphics.WUMPUS_1)
+	matrix.DrawSprite(&graphics.WUMPUS_01)
 	sleep(500)
-	matrix.DrawSprite(&graphics.WUMPUS_3)
+	matrix.DrawSprite(&graphics.WUMPUS_03)
 	tone(900, 100, 100)
-	matrix.DrawSprite(&graphics.WUMPUS_4)
+	matrix.DrawSprite(&graphics.WUMPUS_04)
 	tone(850, 100, 100)
-	matrix.DrawSprite(&graphics.WUMPUS_5)
+	matrix.DrawSprite(&graphics.WUMPUS_05)
 	tone(800, 100, 100)
-	matrix.DrawSprite(&graphics.WUMPUS_6)
+	matrix.DrawSprite(&graphics.WUMPUS_06)
 	tone(750, 100, 100)
-	matrix.DrawSprite(&graphics.WUMPUS_7)
+	matrix.DrawSprite(&graphics.WUMPUS_07)
 	tone(700, 100, 100)
-	matrix.DrawSprite(&graphics.WUMPUS_8)
+	matrix.DrawSprite(&graphics.WUMPUS_08)
 	tone(650, 100, 100)
-	matrix.DrawSprite(&graphics.WUMPUS_9)
+	matrix.DrawSprite(&graphics.WUMPUS_09)
 	tone(600, 100, 100)
 	matrix.DrawSprite(&graphics.WUMPUS_10)
 	tone(550, 100, 100)
@@ -685,8 +685,8 @@ func arrowMissAnimation() {
  */
 func wumpusWinAnimation() {
 
-	sequence := graphics.WUMPUS_2[:]
-	sequence = append(sequence, graphics.WUMPUS_1[:]...)
+	sequence := graphics.WUMPUS_02[:]
+	sequence = append(sequence, graphics.WUMPUS_01[:]...)
 	for i := 0; i < 3; i++ {
 		matrix.AnimateSequence(sequence, 2, 250)
 	}
@@ -778,17 +778,17 @@ func gameLost(wumpusWon bool) {
 
 	// Show the player's grave
 	matrix.DrawSprite(&graphics.GRAVE)
-    tone(294, 400, 200)
-    tone(294, 400, 200)
-    tone(294, 100, 200)
-    tone(294, 400, 200)
-    tone(349, 400, 200)
-    tone(330, 100, 200)
-    tone(330, 400, 200)
-    tone(294, 100, 200)
-    tone(294, 400, 200)
-    tone(294, 100, 200)
-    tone(294, 800, 3000)
+	tone(294, 400, 200)
+	tone(294, 400, 200)
+	tone(294, 100, 200)
+	tone(294, 400, 200)
+	tone(349, 400, 200)
+	tone(330, 100, 200)
+	tone(330, 400, 200)
+	tone(294, 100, 200)
+	tone(294, 400, 200)
+	tone(294, 100, 200)
+	tone(294, 800, 3000)
 
 	if wumpusWon {
 		gameOver(textLose)
@@ -818,21 +818,21 @@ func playIntro() {
 	// A throwback to the theme played in the
 	// version by Gregory Yob in 1975.
 	// Also show the player entering the cave.
-	matrix.DrawSprite(&graphics.BEGIN_1)
+	matrix.DrawSprite(&graphics.BEGIN_01)
 	tone(147, 200, 100) //D3
-	matrix.DrawSprite(&graphics.BEGIN_2)
+	matrix.DrawSprite(&graphics.BEGIN_02)
 	tone(165, 200, 100) //E3
-	matrix.DrawSprite(&graphics.BEGIN_3)
+	matrix.DrawSprite(&graphics.BEGIN_03)
 	tone(175, 200, 100) //F3
-	matrix.DrawSprite(&graphics.BEGIN_4)
+	matrix.DrawSprite(&graphics.BEGIN_04)
 	tone(196, 200, 100) //G3
-	matrix.DrawSprite(&graphics.BEGIN_5)
+	matrix.DrawSprite(&graphics.BEGIN_05)
 	tone(220, 200, 100) //A4
-	matrix.DrawSprite(&graphics.BEGIN_6)
+	matrix.DrawSprite(&graphics.BEGIN_06)
 	tone(175, 200, 100) //F3
-	matrix.DrawSprite(&graphics.BEGIN_7)
+	matrix.DrawSprite(&graphics.BEGIN_07)
 	tone(220, 400, 100) //A4
-	matrix.DrawSprite(&graphics.BEGIN_4)
+	matrix.DrawSprite(&graphics.BEGIN_04)
 	tone(208, 200, 100) //G#3
 	tone(175, 200, 100) //E#3
 	tone(208, 400, 100) //G#3
