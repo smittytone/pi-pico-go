@@ -24,7 +24,7 @@ go.work
 # Build directories
 build/
 *build/
-bin/
+#bin/
 
 # Xcode stuff
 xcuserdata/

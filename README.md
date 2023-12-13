@@ -50,6 +50,18 @@ A twittering sound indicates a nearby bat. If you enter its square, it will carr
 
 A green light indicates the Wumpus is close. Enter its square and it will eat you, but if you’re sure where it is, press the button to fire an arrow to kill it first. To fire the arrow successfully, back off and then move toward the Wumpus in the direction you want to the arrow to fly. If you miss, the beast will catch you!
 
+#### Release Notes
+
+* 1.0.3
+    * Code tidy — no functional changes.
+* 1.0.2
+    * Add missing bat animation frame.
+* 1.0.1
+    * Add post game report/
+    * Bug fixes, ie. missing animations.
+* 1.0.0
+    * Initial release.
+
 #### Credits
 
 This version was based on a C port of an [Arduino version created by Corey Faure](https://github.com/coreyfaure/HuntTheWumpus-Arduino). This is very much his game, but I have taken a few liberties with a couple of the animations and rewritten the code.
