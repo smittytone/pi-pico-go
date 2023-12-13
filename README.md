@@ -2,6 +2,8 @@
 
 Go experiments for the [Raspberry Pi RP2040 MCU](https://www.raspberrypi.com/documentation/microcontrollers/rp2040.html#documentation) using [TinyGo](https://tinygo.org/). This repo includes:
 
+See [the full write-up of using the RP2040 and Go on macOS](https://blog.smittytone.net/2023/08/19/go-program-the-raspberry-pi-pico-with-go/).
+
 ## Projects
 
 * [Hunt the Wumpus](#hunt-the-wumpus)
