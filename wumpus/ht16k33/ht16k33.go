@@ -3,7 +3,7 @@
  * Go version
  *
  * @authors     smittytone
- * @copyright   2023, Tony Smith
+ * @copyright   2024, Tony Smith
  * @licence     MIT
  *
  */
@@ -67,7 +67,7 @@ func New(bus machine.I2C, address uint8) HT16K33 {
 func (p *HT16K33) Init() {
 
 	p.Power(true)
-	p.SetBrightness(15)
+	p.SetBrightness(8)
 	p.Clear()
 	p.Draw()
 }
@@ -103,7 +103,7 @@ func (p *HT16K33) SetBrightness(brightness uint) {
 		brightness = 15
 	}
 
-	p.brightness = 15
+	p.brightness = brightness
 	p.i2cWriteByte(HT16K33_CMD_BRIGHTNESS | byte(brightness&0xFF))
 }
 

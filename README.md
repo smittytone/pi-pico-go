@@ -52,6 +52,8 @@ A green light indicates the Wumpus is close. Enter its square and it will eat yo
 
 #### Release Notes
 
+* 1.0.4
+    * Fix: respect requested display brightness.
 * 1.0.3
     * Code tidy — no functional changes.
 * 1.0.2
@@ -66,4 +68,4 @@ A green light indicates the Wumpus is close. Enter its square and it will eat yo
 
 This version was based on a C port of an [Arduino version created by Corey Faure](https://github.com/coreyfaure/HuntTheWumpus-Arduino). This is very much his game, but I have taken a few liberties with a couple of the animations and rewritten the code.
 
-All source code released under the MIT Licence. Copyright © 2023, Tony Smith (@smittytone).
+All source code released under the MIT Licence. Copyright © 2024, Tony Smith (@smittytone).
